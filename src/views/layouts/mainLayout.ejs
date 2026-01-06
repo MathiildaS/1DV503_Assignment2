@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BookStore</title>
+  <base href="<%= baseURL %>" />
+  <link rel="stylesheet" href="./css/styles.css" />
+  <link rel="shortcut icon" href="./favicon.ico" />
+  </script>
+  <%- defineContent('style') %>
+    <%- defineContent('script') %>
+</head>
+
+<body>
+  <%- include('../partials/header') %>
+    <main class="main-container">
+      <%- include('../partials/flash.ejs') %>
+        <%- body %>
+    </main>
+    <%- include('../partials/footer.ejs') %>
+</body>
+
+</html>
