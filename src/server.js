@@ -1,13 +1,23 @@
+import 'dotenv/config'
+import pool from './config/db.js'
 import express from 'express'
 import expressLayouts from 'express-ejs-layouts'
 import session from 'express-session'
 import logger from 'morgan'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { sessionConfig } from './config/sessions.js'
+import { sessionConfig } from './config/sessionConfig.js'
 import { router } from './routes/router.js'
 
 const expressApp = express()
+
+try {
+  await pool.query('SELECT 1')
+  console.log('Database connected successfully!')
+} catch (err) {
+  console.error('Database connection failed:', err)
+  process.exit(1)
+}
 
 const rootDirectory = dirname(fileURLToPath(import.meta.url))
 const baseURL = process.env.BASE_URL || '/'
@@ -46,5 +56,5 @@ expressApp.use((err, req, res, next) => {
 })
 
 const server = expressApp.listen(process.env.PORT, () => {
-  console.log(`Server running at http://localhost:${server.address().port}`)
+  console.log(`Server running at http://localhost:${process.env.PORT}`)
 })
