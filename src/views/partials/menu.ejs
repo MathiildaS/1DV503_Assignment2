@@ -1,0 +1,18 @@
+<nav>
+  <ul>
+    <li><a href="./" class="btn">Home</a></li>
+    
+    <% if (session.onlineUser) { %>
+      <li><span class="welcome">Welcome, <%= session.onlineUser.fname %>!</span></li>
+      <li><a href="./cart" class="btn">Cart</a></li>
+      <li>
+        <form action="./user/logOut" method="POST" style="display: inline;">
+          <button type="submit" class="btn">Log Out</button>
+        </form>
+      </li>
+      <% } else { %>
+        <li><a href="./user/signUp" class="btn">Sign Up</a></li>
+        <li><a href="./user/logIn" class="btn">Log In</a></li>
+        <% } %>
+  </ul>
+</nav>
