@@ -5,14 +5,16 @@
 
 import express from 'express'
 import { router as homeRouter } from './homeRouter.js'
+import { router as userRouter } from './userRouter.js'
 
 // Export and create an Express router-instance.
 export const router = express.Router()
 
 router.get('/favicon.ico', (req, res) => res.status(204).end())
 
-// Register the sub-router for home page.
+// Register the sub-router for home page and user routes
 router.use('/', homeRouter)
+router.use('/user', userRouter)
 
 // Catch 404 if wrong routes.
 router.use((req, res, next) => {
