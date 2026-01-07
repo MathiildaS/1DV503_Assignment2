@@ -99,4 +99,23 @@ export class UserController {
     res.render('user/logIn')
   }
 
+  /**
+   * Handles user login.
+   *
+   * @param {object} req - Express request object.
+   * @param {object} res - Express response object.
+   */
+  async postLogIn(req, res) {
+    try {
+      const { email, password } = req.body
+
+      // Validate input
+      if (!email || !password) {
+        req.session.flash = { type: 'danger',
+          message: 'Email and password are required!'
+        }
+        return res.redirect('./logIn')
+      }
+
+      // Fetch user from database
 }
