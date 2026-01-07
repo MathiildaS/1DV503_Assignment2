@@ -1,25 +1,21 @@
 <section class="books-page">
+  <h3>Search for books</h3>
 
-  <header class="books-header">
-    <h2>Our Books</h2>
-    <p>Welcome back, <strong><%= user.fname %></strong>!</p>
-  </header>
+  <form action="/books" method="GET" class="form-container">
+    <label for="subject">Subject</label>
+    <select id="subject" name="subject">
+      <option value="">-- All subjects --</option>
+      <% subjects.forEach(subject => { %>
+      <option value="<%= subject %>"><%= subject %></option>
+      <% }) %>
+    </select>
 
-  <form>
-  <label>Subject</label>
-  <select>
-    <option>Humour</option>
-    <option>Sport</option>
-  </select>
+    <label for="author">Author</label>
+    <input id="author" type="text" name="author" />
 
-  <label>Author</label>
-  <input type="text">
+    <label for="title">Title</label>
+    <input id="title" type="text" name="title" />
 
-  <label>Title</label>
-  <input type="text">
-
-  <button>Search</button>
-</form>
-
+    <button type="submit" class="btn">Search</button>
+  </form>
 </section>
-

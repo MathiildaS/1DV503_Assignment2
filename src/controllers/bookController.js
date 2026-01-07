@@ -18,9 +18,28 @@ export class BookController {
    * @param {object} res - Express response object.
    * @param {Function} next - Express next middleware function.
    */
-  listBooks (req, res, next) {
+  async listBooks(req, res, next) {
     try {
-      res.render('books/books')
+      // Ask the database for all unique subjects
+      const result = await pool.query(
+        'SELECT DISTINCT subject FROM books ORDER BY subject'
+      )
+
+      // The database returns an array inside another array
+      const rows = result[0]
+
+      // Create an empty array
+      const subjects = []
+
+      // Go through each row and take out the subject value
+      for (let i = 0; i < rows.length; i++) {
+        const row = rows[i]
+        subjects.push(row.subject)
+      }
+
+      res.render('books/books', {
+        subjects: subjects
+      })
     } catch (error) {
       next(error)
     }
