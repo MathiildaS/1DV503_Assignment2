@@ -44,7 +44,6 @@ export class BookController {
       const limit = 5
       const offset = (page - 1) * limit
 
-
       let books = []
 
       if (selectedSubject) {
@@ -68,11 +67,27 @@ export class BookController {
           text: 'No books found for the selected subject.'
         }
       }
+      // Get total count of books for pagination
+      let countResult
+      if (selectedSubject) {
+        countResult = await pool.query(
+          'SELECT COUNT(*) AS total FROM books WHERE subject = ?',
+          [selectedSubject]
+        )
+      } else {
+        countResult = await pool.query(
+          'SELECT COUNT(*) AS total FROM books'
+        )
+      }
+
+      const totalBooks = countResult[0][0].total
+      const totalPages = Math.ceil(totalBooks / limit)
+
       res.render('books/books', {
         subjects: subjects,
         books: foundBooks,
         query: { subject: selectedSubject },
-        pagination: { page, limit }
+        pagination: { page, limit, totalPages }
       })
     } catch (error) {
       next(error)
