@@ -13,4 +13,4 @@ export const router = express.Router()
 const booksController = new BookController()
 
 // Render the books list.
-router.get('/books', booksController.listBooks)
+router.get('/', booksController.listBooks)
