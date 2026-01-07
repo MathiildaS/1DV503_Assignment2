@@ -4,6 +4,8 @@
  * @author Mathilda Segerlund <ms228qs@student.lnu.se>
  */
 
+import pool from '../config/db.js'
+
 /**
  * Encapsulates a controller for the books page.
  */
