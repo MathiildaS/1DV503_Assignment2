@@ -24,8 +24,5 @@ router.get('/logIn', userController.logInForm)
 // Handle user login.
 router.post('/logIn', userController.postLogIn)
 
-// Render the logout-page.
-router.get('/logOut', userController.logOut)
-
 // Handle user logout. Only for logged in users.
 router.post('/logOut', userController.postLogOut)

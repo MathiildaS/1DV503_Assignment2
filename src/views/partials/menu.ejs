@@ -3,7 +3,6 @@
     <li><a href="./" class="btn">Home</a></li>
     
     <% if (session.onlineUser) { %>
-      <li><span class="welcome">Welcome, <%= session.onlineUser.fname %>!</span></li>
       <li><a href="./cart" class="btn">Cart</a></li>
       <li>
         <form action="./user/logOut" method="POST" style="display: inline;">

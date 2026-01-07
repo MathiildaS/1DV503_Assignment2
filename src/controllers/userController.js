@@ -120,7 +120,7 @@ export class UserController {
       if (!email || !password) {
         req.session.flash = {
           type: 'danger',
-          message: 'Email and password are required!'
+          text: 'Email and password are required!'
         }
         return res.redirect('./logIn')
       }
@@ -142,7 +142,8 @@ export class UserController {
       // Compare passwords
       const passwordMatch = await bcrypt.compare(password, user.password)
       if (!passwordMatch) {
-        req.session.flash = { type: 'danger',
+        req.session.flash = {
+          type: 'danger',
           text: 'Invalid email or password!'
         }
         return res.redirect('./logIn')
@@ -160,7 +161,7 @@ export class UserController {
       }
       req.session.flash = {
         type: 'success',
-        message: `Welcome back, ${user.fname}!`
+        text: `Welcome back, ${req.session.onlineUser.fname}!`
       }
       res.redirect('../')
 
@@ -168,9 +169,24 @@ export class UserController {
       console.error('Login error:', err)
       req.session.flash = {
         type: 'error',
-        message: 'Login failed. Please try again.'
+        text: 'Login failed. Please try again.'
       }
       res.redirect('./logIn')
     }
+  }
+
+  /**
+   * Handles user logout.
+   *
+   * @param {object} req - Express request object.
+   * @param {object} res - Express response object.
+   */
+  postLogOut(req, res) {
+    req.session.destroy((err) => {
+      if (err) {
+        console.error('Logout error:', err)
+      }
+      res.render('user/logOut')
+    })
   }
 }
