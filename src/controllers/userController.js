@@ -81,9 +81,16 @@ export class UserController {
 
     } catch (err) {
       console.error('Registration error:', err)
-      req.session.flash = {
-        type: 'danger',
-        text: 'Registration failed. Please try again.'
+      if (err.code === 'ER_DUP_ENTRY') {
+        req.session.flash = {
+          type: 'danger',
+          text: 'This email is already registered!'
+        }
+      } else {
+        req.session.flash = {
+          type: 'danger',
+          text: 'Registration failed. Please try again.'
+        }
       }
       res.redirect(`${process.env.BASE_URL}user/signUp`)
     }
@@ -111,11 +118,59 @@ export class UserController {
 
       // Validate input
       if (!email || !password) {
-        req.session.flash = { type: 'danger',
+        req.session.flash = {
+          type: 'danger',
           message: 'Email and password are required!'
         }
         return res.redirect('./logIn')
       }
 
       // Fetch user from database
+      const [users] = await pool.query(
+        'SELECT * FROM members WHERE email = ?',
+        [email]
+      )
+      if (users.length === 0) {
+        req.session.flash = {
+          type: 'danger',
+          text: 'Invalid email or password!'
+        }
+        return res.redirect('./logIn')
+      }
+      const user = users[0]
+
+      // Compare passwords
+      const passwordMatch = await bcrypt.compare(password, user.password)
+      if (!passwordMatch) {
+        req.session.flash = { type: 'danger',
+          text: 'Invalid email or password!'
+        }
+        return res.redirect('./logIn')
+      }
+      // Set user session
+      req.session.onlineUser = {
+        userid: user.userid,
+        fname: user.fname,
+        lname: user.lname,
+        email: user.email,
+        address: user.address,
+        city: user.city,
+        zip: user.zip,
+        phone: user.phone
+      }
+      req.session.flash = {
+        type: 'success',
+        message: `Welcome back, ${user.fname}!`
+      }
+      res.redirect('../')
+
+    } catch (err) {
+      console.error('Login error:', err)
+      req.session.flash = {
+        type: 'error',
+        message: 'Login failed. Please try again.'
+      }
+      res.redirect('./logIn')
+    }
+  }
 }
