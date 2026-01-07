@@ -88,4 +88,15 @@ export class UserController {
       res.redirect(`${process.env.BASE_URL}user/signUp`)
     }
   }
+
+  /**
+   * Renders the login form.
+   *
+   * @param {object} req - Express request object.
+   * @param {object} res - Express response object.
+   */
+  logInForm(req, res) {
+    res.render('user/logIn')
+  }
+
 }
