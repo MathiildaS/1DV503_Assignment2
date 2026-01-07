@@ -163,8 +163,7 @@ export class UserController {
         type: 'success',
         text: `Welcome back, ${req.session.onlineUser.fname}!`
       }      
-      console.log('Redirecting to:')
-      res.redirect('../books/books')
+      res.redirect('/books')
     } catch (err) {
       console.error('Login error:', err)
       req.session.flash = {
