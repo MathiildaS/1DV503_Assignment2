@@ -5,12 +5,12 @@
  */
 
 import express from 'express'
-import { BooksController } from '../controllers/bookController.js'
+import { BookController } from '../controllers/bookController.js'
 
 // Export and create an Express router-instance.
 export const router = express.Router()
 
-const booksController = new BooksController()
+const booksController = new BookController()
 
 // Render the books list.
-router.get('/', booksController.listBooks)
+router.get('/books', booksController.listBooks)

@@ -162,9 +162,9 @@ export class UserController {
       req.session.flash = {
         type: 'success',
         text: `Welcome back, ${req.session.onlineUser.fname}!`
-      }
-      res.redirect('./books')
-
+      }      
+      console.log('Redirecting to:')
+      res.redirect('../books/books')
     } catch (err) {
       console.error('Login error:', err)
       req.session.flash = {
