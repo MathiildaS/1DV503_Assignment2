@@ -163,7 +163,7 @@ export class UserController {
         type: 'success',
         text: `Welcome back, ${req.session.onlineUser.fname}!`
       }
-      res.redirect('../')
+      res.redirect('./books')
 
     } catch (err) {
       console.error('Login error:', err)
