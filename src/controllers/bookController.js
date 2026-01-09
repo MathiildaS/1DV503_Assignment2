@@ -38,6 +38,8 @@ export class BookController {
       }
 
       const selectedSubject = (req.query.subject)
+      const author = (req.query.author)
+      const title = (req.query.title)
 
       // Pagination
       const page = parseInt(req.query.page || '1', 10)
@@ -46,8 +48,37 @@ export class BookController {
 
       let books = []
 
-      if (selectedSubject) {
+      if (selectedSubject && author && title) {
         // If a subject is selected, fetch books for that subject
+        books = await pool.query(
+          'SELECT * FROM books WHERE subject = ? AND LOWER(author) LIKE LOWER(?) AND LOWER(title) LIKE LOWER(?) LIMIT ? OFFSET ?',
+          [selectedSubject, `${author}%`, `%${title}%`, limit, offset]
+        )
+      } else if (selectedSubject && author) {
+        books = await pool.query(
+          'SELECT * FROM books WHERE subject = ? AND LOWER(author) LIKE LOWER(?) LIMIT ? OFFSET ?',
+          [selectedSubject, `${author}%`, limit, offset]
+        )
+
+      } else if (selectedSubject && title) {
+        books = await pool.query(
+          'SELECT * FROM books WHERE subject = ? AND LOWER(title) LIKE LOWER(?) LIMIT ? OFFSET ?',
+          [selectedSubject, `%${title}%`, limit, offset]
+        )
+
+      } else if (author) {
+        books = await pool.query(
+          'SELECT * FROM books WHERE LOWER(author) LIKE LOWER(?) LIMIT ? OFFSET ?',
+          [`${author}%`, limit, offset]
+        )
+
+      } else if (title) {
+        books = await pool.query(
+          'SELECT * FROM books WHERE LOWER(title) LIKE LOWER(?) LIMIT ? OFFSET ?',
+          [`%${title}%`, limit, offset]
+        )
+
+      } else if (selectedSubject) {
         books = await pool.query(
           'SELECT * FROM books WHERE subject = ? LIMIT ? OFFSET ?',
           [selectedSubject, limit, offset]
@@ -69,11 +100,42 @@ export class BookController {
       }
       // Get total count of books for pagination
       let countResult
-      if (selectedSubject) {
+      if (selectedSubject && author && title) {
+        countResult = await pool.query(
+          'SELECT COUNT(*) AS total FROM books WHERE subject = ? AND LOWER(author) LIKE LOWER(?) AND LOWER(title) LIKE LOWER(?)',
+          [selectedSubject, `${author}%`, `%${title}%`]
+        )
+
+      } else if (selectedSubject && author) {
+        countResult = await pool.query(
+          'SELECT COUNT(*) AS total FROM books WHERE subject = ? AND LOWER(author) LIKE LOWER(?)',
+          [selectedSubject, `${author}%`]
+        )
+
+      } else if (selectedSubject && title) {
+        countResult = await pool.query(
+          'SELECT COUNT(*) AS total FROM books WHERE subject = ? AND LOWER(title) LIKE LOWER(?)',
+          [selectedSubject, `%${title}%`]
+        )
+
+      } else if (author) {
+        countResult = await pool.query(
+          'SELECT COUNT(*) AS total FROM books WHERE LOWER(author) LIKE LOWER(?)',
+          [`${author}%`]
+        )
+
+      } else if (title) {
+        countResult = await pool.query(
+          'SELECT COUNT(*) AS total FROM books WHERE LOWER(title) LIKE LOWER(?)',
+          [`%${title}%`]
+        )
+
+      } else if (selectedSubject) {
         countResult = await pool.query(
           'SELECT COUNT(*) AS total FROM books WHERE subject = ?',
           [selectedSubject]
         )
+
       } else {
         countResult = await pool.query(
           'SELECT COUNT(*) AS total FROM books'
@@ -86,7 +148,7 @@ export class BookController {
       res.render('books/books', {
         subjects: subjects,
         books: foundBooks,
-        query: { subject: selectedSubject },
+        query: { subject: selectedSubject, author, title },
         pagination: { page, limit, totalPages }
       })
     } catch (error) {

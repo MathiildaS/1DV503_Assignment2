@@ -1,3 +1,4 @@
+<h1>Welcome to the magical Book Store!</h1>
 <section class="books-page">
   <h3>Search for books</h3>
 
@@ -5,40 +6,73 @@
     <label for="subject">Subject</label>
     <select id="subject" name="subject">
       <option value="">-- All subjects --</option>
-  <% subjects.forEach(subject => { %>
-    <option value="<%= subject %>"
-      <% if (query.subject === subject) { %>
-        selected
-      <% } %>
-    >
-      <%= subject %>
-    </option>
-  <% }) %>
-</select>
+      <% subjects.forEach(subject=> { %>
+        <option value="<%= subject %>" <% if (query.subject===subject) { %>
+          selected
+          <% } %>
+            >
+            <%= subject %>
+        </option>
+        <% }) %>
+    </select>
 
     <label for="author">Author</label>
-    <input id="author" type="text" name="author" />
+    <input id="author" type="text" name="author" value="<%= query.author %>" />
 
     <label for="title">Title</label>
-    <input id="title" type="text" name="title" />
+    <input id="title" type="text" name="title" value="<%= query.title %>" />
 
-    <button type="submit" class="btn">Search</button>
+    <button type=" submit" class="btn">Search</button>
   </form>
 
-  <% if (books && books.length > 0) { %>
-  <h3>Found books</h3>
+  <% if (books && books.length> 0) { %>
+    <h3>Found books</h3>
 
-  <% books.forEach(book => { %>
-    <div class="bookInfo">
-      <h4><%= book.title %></h4>
-      <div>Author: <%= book.author %></div>
-      <div>ISBN: <%= book.isbn %></div>
-      <div>Price: $<%= Number(book.price).toFixed(2) %></div>
-      <div>Subject: <%= book.subject %></div>
-    </div>
-  <% }) %>
+    <% books.forEach(book=> { %>
+      <div class="bookInfo">
+        <h4>
+          <%= book.title %>
+        </h4>
+        <div>Author: <%= book.author %>
+        </div>
+        <div>ISBN: <%= book.isbn %>
+        </div>
+        <div>Price: $<%= Number(book.price).toFixed(2) %>
+        </div>
+        <div>Subject: <%= book.subject %>
+        </div>
+      </div>
+      <% }) %>
 
-<% } else if (query && query.subject) { %>
-  <p>No books found for the selected subject.</p>
-<% } %>
+        <% } else if (query && (query.subject || query.author || query.title)) { %>
+          <p>No books found.</p>
+          <% } %>
+
+            <% if (pagination.totalPages> 1) { %>
+              <div class="pagination">
+
+                <% if (pagination.page> 1) { %>
+                  <a class="btn" href="/books?subject=<%= encodeURIComponent(query.subject) %>
+                  &author=<%= encodeURIComponent(query.author) %>
+                  &title=<%= encodeURIComponent(query.title) %>
+                  &page=<%= pagination.page - 1 %>">
+                    Previous
+                  </a>
+                  <% } %>
+
+                    <span>
+                      Page <%= pagination.page %> of <%= pagination.totalPages %>
+                    </span>
+
+                    <% if (pagination.page < pagination.totalPages) { %>
+                      <a class="btn" href="/books?subject=<%= encodeURIComponent(query.subject) %>
+                      &author=<%= encodeURIComponent(query.author) %>
+                      &title=<%= encodeURIComponent(query.title) %>
+                      &page=<%= pagination.page + 1 %>">
+                        Next
+                      </a>
+                      <% } %>
+
+              </div>
+              <% } %>
 </section>
