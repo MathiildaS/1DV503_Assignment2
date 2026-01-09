@@ -18,7 +18,7 @@ export class HomeController {
    */
   index (req, res, next) {
     try {
-      res.render('home/index')
+      res.redirect('/books')
     } catch (error) {
       next(error)
     }
