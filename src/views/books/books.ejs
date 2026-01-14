@@ -1,8 +1,9 @@
 <h1>Welcome to the magical Book Store!</h1>
-<section class="books-page">
+
   <h3>Search for books</h3>
 
-  <form action="/books" method="GET" class="form-container">
+  <section class="form-container">
+  <form action="/books" method="GET">
     <label for="subject">Subject</label>
     <select id="subject" name="subject">
       <option value="">-- All subjects --</option>
@@ -24,7 +25,8 @@
 
     <button type=" submit" class="btn">Search</button>
   </form>
-
+</section>
+<section class="books-page">
   <% if (books && books.length> 0) { %>
     <h3>Found books</h3>
 
@@ -33,13 +35,13 @@
         <h4>
           <%= book.title %>
         </h4>
-        <div>Author: <%= book.author %>
+        <div><b>Author:</b> <%= book.author %>
         </div>
-        <div>ISBN: <%= book.isbn %>
+        <div><b>ISBN:</b> <%= book.isbn %>
         </div>
-        <div>Price: $<%= Number(book.price).toFixed(2) %>
+        <div><b>Price:</b> $<%= Number(book.price).toFixed(2) %>
         </div>
-        <div>Subject: <%= book.subject %>
+        <div><b>Subject:</b> <%= book.subject %>
         </div>
       </div>
       <% }) %>
@@ -52,7 +54,7 @@
               <div class="pagination">
 
                 <% if (pagination.page> 1) { %>
-                  <a class="btn" href="/books?subject=<%= encodeURIComponent(query.subject) %>
+                  <a class="btn pag-btn" href="/books?subject=<%= encodeURIComponent(query.subject) %>
                   &author=<%= encodeURIComponent(query.author) %>
                   &title=<%= encodeURIComponent(query.title) %>
                   &page=<%= pagination.page - 1 %>">
@@ -65,7 +67,7 @@
                     </span>
 
                     <% if (pagination.page < pagination.totalPages) { %>
-                      <a class="btn" href="/books?subject=<%= encodeURIComponent(query.subject) %>
+                      <a class="btn pag-btn" href="/books?subject=<%= encodeURIComponent(query.subject) %>
                       &author=<%= encodeURIComponent(query.author) %>
                       &title=<%= encodeURIComponent(query.title) %>
                       &page=<%= pagination.page + 1 %>">
