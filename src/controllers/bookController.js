@@ -145,11 +145,18 @@ export class BookController {
       const totalBooks = countResult[0][0].total
       const totalPages = Math.ceil(totalBooks / limit)
 
+      let isLoggedInUser = false;
+
+      if (req.session && req.session.onlineUser) {
+        isLoggedInUser = true;
+      }
+
       res.render('books/books', {
         subjects: subjects,
         books: foundBooks,
         query: { subject: selectedSubject, author, title },
-        pagination: { page, limit, totalPages }
+        pagination: { page, limit, totalPages },
+        isLoggedInUser
       })
     } catch (error) {
       next(error)
