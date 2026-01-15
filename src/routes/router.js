@@ -1,6 +1,7 @@
 /**
  * @file Defines the main router
  * @module router
+ * @author Mathilda Segerlund <ms228qs@student.lnu.se>
  */
 
 import express from 'express'
@@ -14,7 +15,7 @@ export const router = express.Router()
 
 router.get('/favicon.ico', (req, res) => res.status(204).end())
 
-// Register the sub-router for home page and user routes
+// Register the sub-router for home page, handling users, books and cart
 router.use('/', homeRouter)
 router.use('/user', userRouter)
 router.use('/books', booksRouter)
