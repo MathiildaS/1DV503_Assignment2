@@ -1,7 +1,13 @@
+/**
+ * @file Defines and exports a connection to the SQL databaswe
+ * @module db
+ * @author Mathilda Segerlund <ms228qs@student.lnu.se>
+ */
+
 import mysql from 'mysql2/promise'
 import 'dotenv/config'
 
-const pool = mysql.createPool({
+const sqlDatabase = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
@@ -10,4 +16,4 @@ const pool = mysql.createPool({
   connectionLimit: 10
 })
 
-export default pool
+export default sqlDatabase
