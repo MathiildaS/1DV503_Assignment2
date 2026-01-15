@@ -14,4 +14,6 @@ const cartController = new CartController()
 
 router.get('/', cartController.listCart)
 
-router.get('/add', cartController.addToCart)
+router.post('/add', cartController.addToCart)
+
+router.post('/checkout', cartController.checkout)
