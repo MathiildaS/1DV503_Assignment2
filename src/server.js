@@ -1,5 +1,5 @@
 import 'dotenv/config'
-import pool from './config/db.js'
+import sqlDatabase from './config/db.js'
 import express from 'express'
 import expressLayouts from 'express-ejs-layouts'
 import session from 'express-session'
@@ -12,7 +12,7 @@ import { router } from './routes/router.js'
 const expressApp = express()
 
 try {
-  await pool.query('SELECT 1')
+  await sqlDatabase.query('SELECT 1')
   console.log('Database connected successfully!')
 } catch (err) {
   console.error('Database connection failed:', err)
@@ -33,9 +33,6 @@ expressApp.use(expressLayouts)
 expressApp.use(express.urlencoded({ extended: false }))
 expressApp.use(express.static(join(rootDirectory, '..', 'public')))
 
-if (process.env.NODE_ENV === 'production') {
-  expressApp.set('trust proxy', 1)
-}
 expressApp.use(session(sessionConfig))
 
 expressApp.use((req, res, next) => {
@@ -55,6 +52,6 @@ expressApp.use((err, req, res, next) => {
   res.status(err.status || 500).render('errors/error', { error: err })
 })
 
-const server = expressApp.listen(process.env.PORT, () => {
+expressApp.listen(process.env.PORT, () => {
   console.log(`Server running at http://localhost:${process.env.PORT}`)
 })
