@@ -47,7 +47,7 @@ export class CartController {
         totalPrice += Number(item.amount)
       }
 
-      res.render('cart/view', { cartItems, totalPrice })
+      res.render('cart/cart', { cartItems, totalPrice })
     } catch (err) {
       console.error('Cart error:', err)
       req.session.flash = {
@@ -57,4 +57,50 @@ export class CartController {
       res.redirect('/books')
     }
   }
+
+  /**
+   * Adds a book to the user's cart.
+   * Handles POST requests to '/cart/add'.
+   */
+  async addToCart(req, res, next) {
+    try {
+      if (!req.session?.onlineUser) {
+        req.session.flash = { type: 'danger', text: 'Please log in to add books to cart.' }
+        return res.redirect('/user/logIn')
+      }
+
+      const userId = req.session.onlineUser.userid
+      const { isbn } = req.body
+
+      if (!isbn) return res.redirect('/books')
+
+      await pool.query(
+        `
+        INSERT INTO cart (userid, isbn, qty)
+        VALUES (?, ?, 1)
+        ON DUPLICATE KEY UPDATE qty = qty + 1
+        `,
+        [userId, isbn]
+      )
+
+      req.session.flash = { type: 'success', text: 'Added to cart!' }
+      res.redirect('/books')
+    } catch (err) {
+      next(err)
+    }
+  }
+
+  /**
+   * Checkout: creates an order and order details, then clears the cart.
+   * Handles POST requests to '/cart/checkout'.
+   */
+  async checkout(req, res, next) {
+    try {
+      // Implementeras sen – men måste finnas för att router inte ska krascha
+      res.send('Checkout not implemented yet')
+    } catch (err) {
+      next(err)
+    }
+  }
+
 }
