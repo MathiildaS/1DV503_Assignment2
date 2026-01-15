@@ -7,6 +7,7 @@ import express from 'express'
 import { router as homeRouter } from './homeRouter.js'
 import { router as userRouter } from './userRouter.js'
 import { router as booksRouter } from './booksRouter.js'
+import { router as cartRouter } from './cartRouter.js'
 
 // Export and create an Express router-instance.
 export const router = express.Router()
@@ -17,6 +18,7 @@ router.get('/favicon.ico', (req, res) => res.status(204).end())
 router.use('/', homeRouter)
 router.use('/user', userRouter)
 router.use('/books', booksRouter)
+router.use('/cart', cartRouter)
 
 // Catch 404 if wrong routes.
 router.use((req, res, next) => {
