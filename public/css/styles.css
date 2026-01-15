@@ -167,10 +167,18 @@ label {
   transform: translateY(-1px);
 }
 
-.pag-btn {
+.pag-btn, .cart-btn {
   padding: 6px 10px;
   font-size: 14px;
   margin: 6px 16px;
+}
+
+.add-to-cart {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  margin-top: 10px;
 }
 
 a {

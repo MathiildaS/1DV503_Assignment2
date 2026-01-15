@@ -1,8 +1,8 @@
 <h1>Welcome to the magical Book Store!</h1>
 
-  <h3>Search for books</h3>
+<h3>Search for books</h3>
 
-  <section class="form-container">
+<section class="form-container">
   <form action="/books" method="GET">
     <label for="subject">Subject</label>
     <select id="subject" name="subject">
@@ -23,7 +23,7 @@
     <label for="title">Title</label>
     <input id="title" type="text" name="title" value="<%= query.title %>" />
 
-    <button type=" submit" class="btn">Search</button>
+    <button type="submit" class="btn">Search</button>
   </form>
 </section>
 <section class="books-page">
@@ -35,31 +35,39 @@
         <h4>
           <%= book.title %>
         </h4>
-        <div><b>Author:</b> <%= book.author %>
+        <div><b>Author:</b>
+          <%= book.author %>
         </div>
-        <div><b>ISBN:</b> <%= book.isbn %>
+        <div><b>ISBN:</b>
+          <%= book.isbn %>
         </div>
         <div><b>Price:</b> $<%= Number(book.price).toFixed(2) %>
         </div>
-        <div><b>Subject:</b> <%= book.subject %>
+        <div><b>Subject:</b>
+          <%= book.subject %>
         </div>
+
+            <% if (isLoggedInUser) { %>
+      <form action="/cart/add" method="POST" class="add-to-cart">
+        <input type="hidden" name="isbn" value="<%= book.isbn %>">
+        <button type="submit" class="btn cart-btn">Add to cart</button>
+      </form>
+    <% } %>
       </div>
       <% }) %>
 
         <% } else if (query && (query.subject || query.author || query.title)) { %>
-          <p>No books found.</p>
+          <h3>No books found.</h3>
           <% } %>
 
             <% if (pagination.totalPages> 1) { %>
               <div class="pagination">
 
                 <% if (pagination.page> 1) { %>
-                  <a class="btn pag-btn" href="/books?subject=<%= encodeURIComponent(query.subject) %>
-                  &author=<%= encodeURIComponent(query.author) %>
-                  &title=<%= encodeURIComponent(query.title) %>
-                  &page=<%= pagination.page - 1 %>">
-                    Previous
-                  </a>
+<a class="btn pag-btn"
+   href="/books?subject=<%= encodeURIComponent(query.subject || '') %>&author=<%= encodeURIComponent(query.author || '') %>&title=<%= encodeURIComponent(query.title || '') %>&page=<%= pagination.page - 1 %>">
+  Previous
+</a>
                   <% } %>
 
                     <span>
@@ -67,14 +75,12 @@
                     </span>
 
                     <% if (pagination.page < pagination.totalPages) { %>
-                      <a class="btn pag-btn" href="/books?subject=<%= encodeURIComponent(query.subject) %>
-                      &author=<%= encodeURIComponent(query.author) %>
-                      &title=<%= encodeURIComponent(query.title) %>
-                      &page=<%= pagination.page + 1 %>">
-                        Next
-                      </a>
+<a class="btn pag-btn"
+   href="/books?subject=<%= encodeURIComponent(query.subject || '') %>&author=<%= encodeURIComponent(query.author || '') %>&title=<%= encodeURIComponent(query.title || '') %>&page=<%= pagination.page + 1 %>">
+  Next
+</a>
                       <% } %>
 
               </div>
-              <% } %>
+            <% } %>
 </section>
