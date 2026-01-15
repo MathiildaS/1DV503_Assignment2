@@ -65,7 +65,7 @@
 
                 <% if (pagination.page> 1) { %>
 <a class="btn pag-btn"
-   href="/books?subject=<%= query.subject || '' %>&author=<%= query.author || '' %>&title=<%= query.title || '' %>&page=<%= pagination.page - 1 %>"
+   href="/books?subject=<%= query.subject || '' %>&author=<%= query.author || '' %>&title=<%= query.title || '' %>&page=<%= pagination.page - 1 %>">
   Previous
 </a>
                   <% } %>
@@ -76,7 +76,7 @@
 
                     <% if (pagination.page < pagination.totalPages) { %>
 <a class="btn pag-btn"
-   href="/books?subject=<%= query.subject || '' %>&author=<%= query.author || '' %>&title=<%= query.title || '' %>&page=<%= pagination.page + 1 %>"
+   href="/books?subject=<%= query.subject || '' %>&author=<%= query.author || '' %>&title=<%= query.title || '' %>&page=<%= pagination.page + 1 %>">
   Next
 </a>
                       <% } %>
