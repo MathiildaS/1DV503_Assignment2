@@ -9,9 +9,8 @@
  */
 export class HomeController {
   /**
-   * Renders the home/index view and sends the rendered HTML as an HTTP response.
-   * Handles GET requests to '/'.
-   *
+   * Redirects to the list of books and filter-form.
+   * 
    * @param {object} req - Express request object.
    * @param {object} res - Express response object.
    * @param {Function} next - Express next middleware function.

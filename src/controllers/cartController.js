@@ -1,5 +1,5 @@
 /**
- * @file Defines the CartController class.
+ * @file Defines the CartController class that displays the cart of a user and handles checkout with purchase and invoice.
  * @module cartController
  * @author Mathilda Segerlund <ms228qs@student.lnu.se>
  */
@@ -42,9 +42,10 @@ export class CartController {
   async listCart(req, res, next) {
     try {
       if (!req.session?.onlineUser) {
-        req.session.flash = { 
-          type: 'danger', 
-          text: 'Please log in to view your cart.' }
+        req.session.flash = {
+          type: 'danger',
+          text: 'Please log in to view your cart.'
+        }
         return res.redirect('/user/logIn')
       }
 
@@ -60,9 +61,9 @@ export class CartController {
       return res.render('cart/cart', { booksInCart, totalPrice })
     } catch (error) {
       console.error('Cart error:', error)
-      req.session.flash = { 
-        type: 'danger', 
-        text: 'Failed to display books in cart. Please try again.' 
+      req.session.flash = {
+        type: 'danger',
+        text: 'Failed to display books in cart. Please try again.'
       }
       return res.redirect('/books')
     }
@@ -74,9 +75,10 @@ export class CartController {
   async addToCart(req, res, next) {
     try {
       if (!req.session?.onlineUser) {
-        req.session.flash = { 
-          type: 'danger', 
-          text: 'Please log in to add books to cart.' }
+        req.session.flash = {
+          type: 'danger',
+          text: 'Please log in to add books to cart.'
+        }
         return res.redirect('/user/logIn')
       }
 
@@ -91,9 +93,9 @@ export class CartController {
       const sqlValues = [onlineUserID, bookISBN, amountOfBooks, amountOfBooks]
       await sqlDatabase.query(addBookToCartQuery, sqlValues)
 
-      req.session.flash = { 
-        type: 'success', 
-        text: 'Book added to cart!' 
+      req.session.flash = {
+        type: 'success',
+        text: 'Book added to cart!'
       }
       return res.redirect('/books')
     } catch (error) {
@@ -112,9 +114,10 @@ export class CartController {
   async checkout(req, res, next) {
     try {
       if (!req.session?.onlineUser) {
-        req.session.flash = { 
-          type: 'danger', 
-          text: 'You must log in to checkout.' }
+        req.session.flash = {
+          type: 'danger',
+          text: 'You must log in to checkout.'
+        }
         return res.redirect('/user/logIn')
       }
 
@@ -124,9 +127,10 @@ export class CartController {
       const [booksInCart] = await sqlDatabase.query(getBooksFromCartQuery, [onlineUserID])
 
       if (!booksInCart || booksInCart.length === 0) {
-        req.session.flash = { 
-          type: 'danger', 
-          text: 'Your cart is empty.' }
+        req.session.flash = {
+          type: 'danger',
+          text: 'Your cart is empty.'
+        }
         return res.redirect('/cart')
       }
 
@@ -171,7 +175,7 @@ export class CartController {
         type: 'danger',
         text: 'Could not checkout.'
       }
-    return res.redirect('/books')
+      return res.redirect('/books')
     }
   }
 }

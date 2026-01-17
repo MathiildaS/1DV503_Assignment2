@@ -13,46 +13,46 @@ import sqlDatabase from '../config/db.js'
 // SQL query to get all books with limit and offset for pagination
 const allBooksQuery = 'SELECT * FROM books LIMIT ? OFFSET ?'
 
-// SQL querie to get all subjects from alla books
+// SQL query to get all subjects from alla books
 const subjectsQuery = 'SELECT DISTINCT subject FROM books ORDER BY subject'
 
-// SQL querie to get all books from selected subject
+// SQL query to get all books from selected subject
 const booksFromSubjectQuery = 'SELECT * FROM books WHERE subject = ? LIMIT ? OFFSET ?'
 
-// SQL querie to get all books from searched author
+// SQL query to get all books from searched author
 const booksFromAuthorQuery = 'SELECT * FROM books WHERE LOWER(author) LIKE LOWER(?) LIMIT ? OFFSET ?'
 
-// SQL querie to get all books from searched title
+// SQL query to get all books from searched title
 const booksFromTitleQuery = 'SELECT * FROM books WHERE LOWER(title) LIKE LOWER(?) LIMIT ? OFFSET ?'
 
-// SQL querie to get all books from searched subject, author and title
+// SQL query to get all books from searched subject, author and title
 const booksFromSubjectAuthorTitleQuery = 'SELECT * FROM books WHERE subject = ? AND LOWER(author) LIKE LOWER(?) AND LOWER(title) LIKE LOWER(?) LIMIT ? OFFSET ?'
 
-// SQL querie to get all books from searched subject andauthor
+// SQL query to get all books from searched subject andauthor
 const booksFromSubjectAuthorQuery = 'SELECT * FROM books WHERE subject = ? AND LOWER(author) LIKE LOWER(?) LIMIT ? OFFSET ?'
 
-// SQL querie to get all books from searched subject and title
+// SQL query to get all books from searched subject and title
 const booksFromSubjectTitleQuery = 'SELECT * FROM books WHERE subject = ? AND LOWER(title) LIKE LOWER(?) LIMIT ? OFFSET ?'
 
-// SQL querie to count total number of books for pagination
+// SQL query to count total number of books for pagination
 const countAllBooksQuery = 'SELECT COUNT(*) AS totalRowsOfBooks FROM books'
 
-// SQL querie to count total number of books for pagination when chosen subject
+// SQL query to count total number of books for pagination when chosen subject
 const countBooksFromSubjectQuery = 'SELECT COUNT(*) AS totalRowsOfBooks FROM books WHERE subject = ?'
 
-// SQL querie to count total number of books for pagination when search for author
+// SQL query to count total number of books for pagination when search for author
 const countBooksFromAuthorQuery = 'SELECT COUNT(*) AS totalRowsOfBooks FROM books WHERE LOWER(author) LIKE LOWER(?)'
 
-// SQL querie to count total number of books for pagination when search for title
+// SQL query to count total number of books for pagination when search for title
 const countBooksFromTitleQuery = 'SELECT COUNT(*) AS totalRowsOfBooks FROM books WHERE LOWER(title) LIKE LOWER(?)'
 
-// SQL querie to count total number of books for pagination when search with subject, author and title
+// SQL query to count total number of books for pagination when search with subject, author and title
 const countBooksFromSubjectAuthorTitleQuery = 'SELECT COUNT(*) AS totalRowsOfBooks FROM books WHERE subject = ? AND LOWER(author) LIKE LOWER(?) AND LOWER(title) LIKE LOWER(?)'
 
-// SQL querie to count total number of books for pagination when search with subject and author
+// SQL query to count total number of books for pagination when search with subject and author
 const countBooksFromSubjectAuthorQuery = 'SELECT COUNT(*) AS totalRowsOfBooks FROM books WHERE subject = ? AND LOWER(author) LIKE LOWER(?)'
 
-// SQL querie to count total number of books for pagination when search with subject and title
+// SQL query to count total number of books for pagination when search with subject and title
 const countBooksFromSubjectTitleQuery = 'SELECT COUNT(*) AS totalRowsOfBooks FROM books WHERE subject = ? AND LOWER(title) LIKE LOWER(?)'
 
 /**
@@ -154,11 +154,11 @@ export class BookController {
       res.render('books/books', {
         subjects: allSubjects,
         books: foundBooks,
-        selectedSubject, 
-        author, 
+        selectedSubject,
+        author,
         title,
-        currentPage: currentPageNumber, 
-        booksPerPage: limitOfBooks, 
+        currentPage: currentPageNumber,
+        booksPerPage: limitOfBooks,
         totalPages,
         isLoggedInUser
       })

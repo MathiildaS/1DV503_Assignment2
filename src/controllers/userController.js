@@ -38,9 +38,9 @@ export class UserController {
 
       // Validate that all fields are filled
       if (!fname || !lname || !address || !city || !zip || !phone || !email || !password) {
-        req.session.flash = { 
-          type: 'danger', 
-          text: 'You must fill in all fields.' 
+        req.session.flash = {
+          type: 'danger',
+          text: 'You must fill in all fields.'
         }
         res.redirect('/signUp')
         return
@@ -58,7 +58,6 @@ export class UserController {
         return
       }
 
-      // Validate zip code (5 digits)
       const zipNum = parseInt(zip)
       if (isNaN(zipNum) || typeof zipNum !== 'number' || zipNum.length > 9 || zipNum < 0) {
         req.session.flash = {
@@ -69,7 +68,6 @@ export class UserController {
         return
       }
 
-      // Hash the password
       const hashedPassword = await bcrypt.hash(password, 10)
 
       // Insert user into database
@@ -120,7 +118,6 @@ export class UserController {
     try {
       const { email, password } = req.body
 
-      // Validate input
       if (!email || !password) {
         req.session.flash = {
           type: 'danger',
@@ -141,11 +138,10 @@ export class UserController {
         return res.redirect('/logIn')
       }
 
-      // get the first user from array of users thanks to unque email constraint
-      const user = users[0]
+      const foundUser = users[0]
 
       // Compare passwords
-      const samePassword = await bcrypt.compare(password, user.password)
+      const samePassword = await bcrypt.compare(password, foundUser.password)
 
       if (!samePassword) {
         req.session.flash = {
@@ -157,19 +153,19 @@ export class UserController {
 
       // Set user session
       req.session.onlineUser = {
-        userid: user.userid,
-        fname: user.fname,
-        lname: user.lname,
-        email: user.email,
-        address: user.address,
-        city: user.city,
-        zip: user.zip,
-        phone: user.phone
+        userid: foundUser.userid,
+        fname: foundUser.fname,
+        lname: foundUser.lname,
+        email: foundUser.email,
+        address: foundUser.address,
+        city: foundUser.city,
+        zip: foundUser.zip,
+        phone: foundUser.phone
       }
       req.session.flash = {
         type: 'success',
         text: `Welcome back, ${req.session.onlineUser.fname}!`
-      }      
+      }
       res.redirect('/books')
     } catch (error) {
       console.error('Login error:', error)
