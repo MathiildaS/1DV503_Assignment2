@@ -50,21 +50,27 @@
 
     <% if (totalPages > 1) { %>
       <div class="pagination">
+        <% const subjectParam = encodeURIComponent(selectedSubject || '') %>
+        <% const authorParam = encodeURIComponent(author || '') %>
+        <% const titleParam = encodeURIComponent(title || '') %>
+
         <% if (currentPage > 1) { %>
           <a class="btn pag-btn"
-            href="/books?subject=<%= selectedSubject || '' %>&author=<%= author || '' %>&title=<%= title || '' %>&page=<%= currentPage - 1 %>">
+             href="/books?subject=<%= subjectParam %>&author=<%= authorParam %>&title=<%= titleParam %>&page=<%= currentPage - 1 %>">
             Previous
           </a>
-       <% } %>
+        <% } %>
         <span>Page <%= currentPage %> of <%= totalPages %></span>
 
         <% if (currentPage < totalPages) { %>
           <a class="btn pag-btn"
-            href="/books?subject=<%= selectedSubject || '' %>&author=<%= author || '' %>&title=<%= title || '' %>&page=<%= currentPage + 1 %>">
+            href="/books?subject=<%= subjectParam %>&author=<%= authorParam %>&title=<%= titleParam %>&page=<%= currentPage + 1 %>">
             Next
           </a>
         <% } %>
-
       </div>
+    <% } %> 
+    <% } else { %>
+      <h3>No books found.</h3>
     <% } %>
 </section>
