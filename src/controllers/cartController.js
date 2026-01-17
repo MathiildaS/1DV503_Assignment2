@@ -62,7 +62,7 @@ export class CartController {
       console.error('Cart error:', error)
       req.session.flash = { 
         type: 'danger', 
-        text: 'Failed to display items in cart. Please try again.' 
+        text: 'Failed to display books in cart. Please try again.' 
       }
       return res.redirect('/books')
     }

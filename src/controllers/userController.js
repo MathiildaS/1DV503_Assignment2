@@ -38,23 +38,23 @@ export class UserController {
 
       // Validate that all fields are filled
       if (!fname || !lname || !address || !city || !zip || !phone || !email || !password) {
-        req.session.flash = { type: 'danger', text: 'You must fill in all fields.' }
-        res.redirect(`${process.env.BASE_URL}user/signUp`)
+        req.session.flash = { 
+          type: 'danger', 
+          text: 'You must fill in all fields.' 
+        }
+        res.redirect('/signUp')
         return
       }
 
       // Check if the email from email-field already exists in the database
-      const [existingEmail] = await sqlDatabase.query(
-        emailQuery,
-        [email]
-      )
+      const [existingEmail] = await sqlDatabase.query(emailQuery, [email])
 
       if (existingEmail.length > 0) {
         req.session.flash = {
           type: 'danger',
           text: 'This email has already been registered. Please use another email or log in.'
         }
-        res.redirect(`${process.env.BASE_URL}user/signUp`)
+        res.redirect('/signUp')
         return
       }
 
@@ -65,7 +65,7 @@ export class UserController {
           type: 'danger',
           text: 'Zip code must be a valid number of maximum 9 digits!'
         }
-        res.redirect(`${process.env.BASE_URL}user/signUp`)
+        res.redirect('/signUp')
         return
       }
 
@@ -73,16 +73,13 @@ export class UserController {
       const hashedPassword = await bcrypt.hash(password, 10)
 
       // Insert user into database
-      await sqlDatabase.query(
-        userQuery,
-        [fname, lname, address, city, zipNum, phone, email, hashedPassword]
-      )
+      await sqlDatabase.query(userQuery, [fname, lname, address, city, zipNum, phone, email, hashedPassword])
 
       req.session.flash = {
         type: 'success',
         text: 'Account successfully created! Please log in to start your book shopping.'
       }
-      res.redirect(`${process.env.BASE_URL}user/logIn`)
+      res.redirect('/logIn')
 
     } catch (error) {
       console.error('Registration error:', error)
@@ -99,7 +96,7 @@ export class UserController {
           text: 'Registration failed. Please try again.'
         }
       }
-      res.redirect(`${process.env.BASE_URL}user/signUp`)
+      res.redirect('/signUp')
     }
   }
 
@@ -129,14 +126,11 @@ export class UserController {
           type: 'danger',
           text: 'You must provide an email and/or password!'
         }
-        return res.redirect('./logIn')
+        return res.redirect('/logIn')
       }
 
       // Fetch user from database based on email from input
-      const [users] = await sqlDatabase.query(
-        emailQuery,
-        [email]
-      )
+      const [users] = await sqlDatabase.query(emailQuery, [email])
 
       // Check if user with that email exists
       if (users.length === 0) {
@@ -144,7 +138,7 @@ export class UserController {
           type: 'danger',
           text: 'Invalid email or password!'
         }
-        return res.redirect('./logIn')
+        return res.redirect('/logIn')
       }
 
       // get the first user from array of users thanks to unque email constraint
@@ -158,7 +152,7 @@ export class UserController {
           type: 'danger',
           text: 'Invalid email or password!'
         }
-        return res.redirect('./logIn')
+        return res.redirect('/logIn')
       }
 
       // Set user session
@@ -183,7 +177,7 @@ export class UserController {
         type: 'danger',
         text: 'Login failed. Please try again.'
       }
-      res.redirect('./logIn')
+      res.redirect('/logIn')
     }
   }
 

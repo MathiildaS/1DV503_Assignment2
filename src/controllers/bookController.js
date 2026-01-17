@@ -85,7 +85,7 @@ export class BookController {
       const title = req.query.title
 
       // Set the current page number to page 1 if no number in query
-      const currentPageNumber = parseInt(req.query.page || '1', 10)
+      const currentPageNumber = parseInt(req.query.page || '1')
       const limitOfBooks = 5
 
       // Calculate how many books to skip based on current page number
