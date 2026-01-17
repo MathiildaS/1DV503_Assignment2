@@ -1,165 +1,174 @@
 /**
- * @file Defines the BookController class.
+ * @file Defines the BookController class that handles displaying books, search and pagination.
  * @module bookController
  * @author Mathilda Segerlund <ms228qs@student.lnu.se>
  */
 
-import pool from '../config/db.js'
+import sqlDatabase from '../config/db.js'
+
+/**
+ * All queries to databse used in the BookController
+ */
+
+// SQL query to get all books with limit and offset for pagination
+const allBooksQuery = 'SELECT * FROM books LIMIT ? OFFSET ?'
+
+// SQL querie to get all subjects from alla books
+const subjectsQuery = 'SELECT DISTINCT subject FROM books ORDER BY subject'
+
+// SQL querie to get all books from selected subject
+const booksFromSubjectQuery = 'SELECT * FROM books WHERE subject = ? LIMIT ? OFFSET ?'
+
+// SQL querie to get all books from searched author
+const booksFromAuthorQuery = 'SELECT * FROM books WHERE LOWER(author) LIKE LOWER(?) LIMIT ? OFFSET ?'
+
+// SQL querie to get all books from searched title
+const booksFromTitleQuery = 'SELECT * FROM books WHERE LOWER(title) LIKE LOWER(?) LIMIT ? OFFSET ?'
+
+// SQL querie to get all books from searched subject, author and title
+const booksFromSubjectAuthorTitleQuery = 'SELECT * FROM books WHERE subject = ? AND LOWER(author) LIKE LOWER(?) AND LOWER(title) LIKE LOWER(?) LIMIT ? OFFSET ?'
+
+// SQL querie to get all books from searched subject andauthor
+const booksFromSubjectAuthorQuery = 'SELECT * FROM books WHERE subject = ? AND LOWER(author) LIKE LOWER(?) LIMIT ? OFFSET ?'
+
+// SQL querie to get all books from searched subject and title
+const booksFromSubjectTitleQuery = 'SELECT * FROM books WHERE subject = ? AND LOWER(title) LIKE LOWER(?) LIMIT ? OFFSET ?'
+
+// SQL querie to count total number of books for pagination
+const countAllBooksQuery = 'SELECT COUNT(*) AS totalRowsOfBooks FROM books'
+
+// SQL querie to count total number of books for pagination when chosen subject
+const countBooksFromSubjectQuery = 'SELECT COUNT(*) AS totalRowsOfBooks FROM books WHERE subject = ?'
+
+// SQL querie to count total number of books for pagination when search for author
+const countBooksFromAuthorQuery = 'SELECT COUNT(*) AS totalRowsOfBooks FROM books WHERE LOWER(author) LIKE LOWER(?)'
+
+// SQL querie to count total number of books for pagination when search for title
+const countBooksFromTitleQuery = 'SELECT COUNT(*) AS totalRowsOfBooks FROM books WHERE LOWER(title) LIKE LOWER(?)'
+
+// SQL querie to count total number of books for pagination when search with subject, author and title
+const countBooksFromSubjectAuthorTitleQuery = 'SELECT COUNT(*) AS totalRowsOfBooks FROM books WHERE subject = ? AND LOWER(author) LIKE LOWER(?) AND LOWER(title) LIKE LOWER(?)'
+
+// SQL querie to count total number of books for pagination when search with subject and author
+const countBooksFromSubjectAuthorQuery = 'SELECT COUNT(*) AS totalRowsOfBooks FROM books WHERE subject = ? AND LOWER(author) LIKE LOWER(?)'
+
+// SQL querie to count total number of books for pagination when search with subject and title
+const countBooksFromSubjectTitleQuery = 'SELECT COUNT(*) AS totalRowsOfBooks FROM books WHERE subject = ? AND LOWER(title) LIKE LOWER(?)'
 
 /**
  * Encapsulates a controller for the books page.
  */
 export class BookController {
   /**
-   * Renders the books list view and sends the rendered HTML as an HTTP response.
-   * Handles GET requests to '/books'.
+   * Renders five books from database with search options and pagination.
    *
    * @param {object} req - Express request object.
    * @param {object} res - Express response object.
    * @param {Function} next - Express next middleware function.
    */
-  async listBooks(req, res, next) {
+  async listAllBooks(req, res, next) {
     try {
-      // Ask the database for all unique subjects
-      const result = await pool.query(
-        'SELECT DISTINCT subject FROM books ORDER BY subject'
-      )
+      // Ask the database for all subjects
+      const subjectsResult = await sqlDatabase.query(subjectsQuery)
 
-      // The database returns an array inside another array
-      const rows = result[0]
+      const subjectRows = subjectsResult[0]
+      const allSubjects = []
 
-      // Create an empty array
-      const subjects = []
-
-      // Go through each row and take out the subject value
-      for (let i = 0; i < rows.length; i++) {
-        const row = rows[i]
-        subjects.push(row.subject)
+      // Collect all subjects to make user able to select one
+      for (let i = 0; i < subjectRows.length; i++) {
+        const foundSubject = subjectRows[i]
+        allSubjects.push(foundSubject.subject)
       }
 
-      const selectedSubject = (req.query.subject)
-      const author = (req.query.author)
-      const title = (req.query.title)
+      const selectedSubject = req.query.subject
+      const author = req.query.author
+      const title = req.query.title
 
-      // Pagination
-      const page = parseInt(req.query.page || '1', 10)
-      const limit = 5
-      const offset = (page - 1) * limit
+      // Set the current page number to page 1 if no number in query
+      const currentPageNumber = parseInt(req.query.page || '1', 10)
+      const limitOfBooks = 5
 
-      let books = []
+      // Calculate how many books to skip based on current page number
+      const bookRowsToSkip = (currentPageNumber - 1) * limitOfBooks
+
+      // Get all books from database based on search and pagination, with all books as deafult.
+      let queryToUse = allBooksQuery
+      let sqlValues = [limitOfBooks, bookRowsToSkip]
+
+      let countQueryToUse = countAllBooksQuery
+      let countSQLValues = []
 
       if (selectedSubject && author && title) {
-        // If a subject is selected, fetch books for that subject
-        books = await pool.query(
-          'SELECT * FROM books WHERE subject = ? AND LOWER(author) LIKE LOWER(?) AND LOWER(title) LIKE LOWER(?) LIMIT ? OFFSET ?',
-          [selectedSubject, `${author}%`, `%${title}%`, limit, offset]
-        )
+        queryToUse = booksFromSubjectAuthorTitleQuery
+        sqlValues = [selectedSubject, `${author}%`, `%${title}%`, limitOfBooks, bookRowsToSkip]
+
+        countQueryToUse = countBooksFromSubjectAuthorTitleQuery
+        countSQLValues = [selectedSubject, `${author}%`, `%${title}%`]
       } else if (selectedSubject && author) {
-        books = await pool.query(
-          'SELECT * FROM books WHERE subject = ? AND LOWER(author) LIKE LOWER(?) LIMIT ? OFFSET ?',
-          [selectedSubject, `${author}%`, limit, offset]
-        )
+        queryToUse = booksFromSubjectAuthorQuery
+        sqlValues = [selectedSubject, `${author}%`, limitOfBooks, bookRowsToSkip]
 
+        countQueryToUse = countBooksFromSubjectAuthorQuery
+        countSQLValues = [selectedSubject, `${author}%`]
       } else if (selectedSubject && title) {
-        books = await pool.query(
-          'SELECT * FROM books WHERE subject = ? AND LOWER(title) LIKE LOWER(?) LIMIT ? OFFSET ?',
-          [selectedSubject, `%${title}%`, limit, offset]
-        )
+        queryToUse = booksFromSubjectTitleQuery
+        sqlValues = [selectedSubject, `%${title}%`, limitOfBooks, bookRowsToSkip]
 
+        countQueryToUse = countBooksFromSubjectTitleQuery
+        countSQLValues = [selectedSubject, `%${title}%`]
       } else if (author) {
-        books = await pool.query(
-          'SELECT * FROM books WHERE LOWER(author) LIKE LOWER(?) LIMIT ? OFFSET ?',
-          [`${author}%`, limit, offset]
-        )
+        queryToUse = booksFromAuthorQuery
+        sqlValues = [`${author}%`, limitOfBooks, bookRowsToSkip]
 
+        countQueryToUse = countBooksFromAuthorQuery
+        countSQLValues = [`${author}%`]
       } else if (title) {
-        books = await pool.query(
-          'SELECT * FROM books WHERE LOWER(title) LIKE LOWER(?) LIMIT ? OFFSET ?',
-          [`%${title}%`, limit, offset]
-        )
+        queryToUse = booksFromTitleQuery
+        sqlValues = [`%${title}%`, limitOfBooks, bookRowsToSkip]
 
+        countQueryToUse = countBooksFromTitleQuery
+        countSQLValues = [`%${title}%`]
       } else if (selectedSubject) {
-        books = await pool.query(
-          'SELECT * FROM books WHERE subject = ? LIMIT ? OFFSET ?',
-          [selectedSubject, limit, offset]
-        )
-      } else {
-        // If no subject is selected, fetch all books
-        books = await pool.query(
-          'SELECT * FROM books LIMIT ? OFFSET ?',
-          [limit, offset]
-        )
-      }
-      const foundBooks = books[0]
+        queryToUse = booksFromSubjectQuery
+        sqlValues = [selectedSubject, limitOfBooks, bookRowsToSkip]
 
-      if (foundBooks.length === 0) {
-        req.session.flash = {
-          type: 'danger',
-          text: 'No books found for the selected subject.'
-        }
-      }
-      // Get total count of books for pagination
-      let countResult
-      if (selectedSubject && author && title) {
-        countResult = await pool.query(
-          'SELECT COUNT(*) AS total FROM books WHERE subject = ? AND LOWER(author) LIKE LOWER(?) AND LOWER(title) LIKE LOWER(?)',
-          [selectedSubject, `${author}%`, `%${title}%`]
-        )
-
-      } else if (selectedSubject && author) {
-        countResult = await pool.query(
-          'SELECT COUNT(*) AS total FROM books WHERE subject = ? AND LOWER(author) LIKE LOWER(?)',
-          [selectedSubject, `${author}%`]
-        )
-
-      } else if (selectedSubject && title) {
-        countResult = await pool.query(
-          'SELECT COUNT(*) AS total FROM books WHERE subject = ? AND LOWER(title) LIKE LOWER(?)',
-          [selectedSubject, `%${title}%`]
-        )
-
-      } else if (author) {
-        countResult = await pool.query(
-          'SELECT COUNT(*) AS total FROM books WHERE LOWER(author) LIKE LOWER(?)',
-          [`${author}%`]
-        )
-
-      } else if (title) {
-        countResult = await pool.query(
-          'SELECT COUNT(*) AS total FROM books WHERE LOWER(title) LIKE LOWER(?)',
-          [`%${title}%`]
-        )
-
-      } else if (selectedSubject) {
-        countResult = await pool.query(
-          'SELECT COUNT(*) AS total FROM books WHERE subject = ?',
-          [selectedSubject]
-        )
-
-      } else {
-        countResult = await pool.query(
-          'SELECT COUNT(*) AS total FROM books'
-        )
+        countQueryToUse = countBooksFromSubjectQuery
+        countSQLValues = [selectedSubject]
       }
 
-      const totalBooks = countResult[0][0].total
-      const totalPages = Math.ceil(totalBooks / limit)
+      const [foundBooks] = await sqlDatabase.query(queryToUse, sqlValues)
+      const [countRows] = await sqlDatabase.query(countQueryToUse, countSQLValues)
 
-      let isLoggedInUser = false;
+      // Returns the value from the field totalRowsOfBooks in the database
+      const totalBooks = countRows[0].totalRowsOfBooks
+
+      // Calculate total number of pages for pagination
+      const totalPages = Math.ceil(totalBooks / limitOfBooks)
+
+      let isLoggedInUser = false
 
       if (req.session && req.session.onlineUser) {
-        isLoggedInUser = true;
+        isLoggedInUser = true
       }
 
       res.render('books/books', {
-        subjects: subjects,
+        subjects: allSubjects,
         books: foundBooks,
-        query: { subject: selectedSubject, author, title },
-        pagination: { page, limit, totalPages },
+        selectedSubject, 
+        author, 
+        title,
+        currentPage: currentPageNumber, 
+        booksPerPage: limitOfBooks, 
+        totalPages,
         isLoggedInUser
       })
     } catch (error) {
-      next(error)
+      console.error('Book page error:', error)
+      req.session.flash = {
+        type: 'danger',
+        text: 'Could not fetch books. Please try again.'
+      }
+      res.redirect('/books')
     }
   }
 }

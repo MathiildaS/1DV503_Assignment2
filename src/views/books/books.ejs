@@ -8,79 +8,63 @@
     <select id="subject" name="subject">
       <option value="">-- All subjects --</option>
       <% subjects.forEach(subject=> { %>
-        <option value="<%= subject %>" <% if (query.subject===subject) { %>
+        <option value="<%= subject %>" <% if (selectedSubject===subject) { %>
           selected
-          <% } %>
-            >
+          <% } %>>
             <%= subject %>
         </option>
-        <% }) %>
+      <% }) %>
     </select>
 
     <label for="author">Author</label>
-    <input id="author" type="text" name="author" value="<%= query.author %>" />
+    <input id="author" type="text" name="author" value="<%= author %>" />
 
     <label for="title">Title</label>
-    <input id="title" type="text" name="title" value="<%= query.title %>" />
+    <input id="title" type="text" name="title" value="<%= title %>" />
 
     <button type="submit" class="btn">Search</button>
   </form>
 </section>
+
 <section class="books-page">
   <% if (books && books.length> 0) { %>
     <h3>Found books</h3>
 
     <% books.forEach(book=> { %>
       <div class="bookInfo">
-        <h4>
-          <%= book.title %>
-        </h4>
-        <div><b>Author:</b>
-          <%= book.author %>
-        </div>
-        <div><b>ISBN:</b>
-          <%= book.isbn %>
-        </div>
-        <div><b>Price:</b> $<%= Number(book.price).toFixed(2) %>
-        </div>
-        <div><b>Subject:</b>
-          <%= book.subject %>
-        </div>
+        <h4><%= book.title %></h4>
+        <div><b>Author:</b> <%= book.author %></div>
+        <div><b>ISBN:</b> <%= book.isbn %></div>
+        <div><b>Price:</b> $<%= Number(book.price).toFixed(2) %></div>
+        <div><b>Subject:</b> <%= book.subject %></div>
 
-            <% if (isLoggedInUser) { %>
-      <form action="/cart/add" method="POST" class="add-to-cart">
-        <input type="hidden" name="isbn" value="<%= book.isbn %>">
-        <button type="submit" class="btn cart-btn">Add to cart</button>
-      </form>
-    <% } %>
+        <% if (isLoggedInUser) { %>
+          <form action="/cart/add" method="POST" class="add-to-cart">
+            <input type="hidden" name="isbn" value="<%= book.isbn %>">
+            <input type="number" name="qty" min="1" value="1" class="qty-input">
+            <button type="submit" class="btn cart-btn">Add to cart</button>
+          </form>
+        <% } %>
       </div>
-      <% }) %>
+    <% }) %>
 
-        <% } else if (query && (query.subject || query.author || query.title)) { %>
-          <h3>No books found.</h3>
-          <% } %>
+    <% if (totalPages > 1) { %>
+      <div class="pagination">
+        <% if (currentPage > 1) { %>
+          <a class="btn pag-btn"
+            href="/books?subject=<%= selectedSubject || '' %>&author=<%= author || '' %>&title=<%= title || '' %>&page=<%= currentPage - 1 %>">
+            Previous
+          </a>
+       <% } %>
+        <span>Page <%= currentPage %> of <%= totalPages %></span>
 
-            <% if (pagination.totalPages> 1) { %>
-              <div class="pagination">
+        <% if (currentPage < totalPages) { %>
+          <a class="btn pag-btn"
+            href="/books?subject=<%= selectedSubject || '' %>&author=<%= author || '' %>&title=<%= title || '' %>&page=<%= currentPage + 1 %>">
+            Next
+          </a>
+        <% } %>
 
-                <% if (pagination.page> 1) { %>
-<a class="btn pag-btn"
-   href="/books?subject=<%= query.subject || '' %>&author=<%= query.author || '' %>&title=<%= query.title || '' %>&page=<%= pagination.page - 1 %>">
-  Previous
-</a>
-                  <% } %>
-
-                    <span>
-                      Page <%= pagination.page %> of <%= pagination.totalPages %>
-                    </span>
-
-                    <% if (pagination.page < pagination.totalPages) { %>
-<a class="btn pag-btn"
-   href="/books?subject=<%= query.subject || '' %>&author=<%= query.author || '' %>&title=<%= query.title || '' %>&page=<%= pagination.page + 1 %>">
-  Next
-</a>
-                      <% } %>
-
-              </div>
-            <% } %>
+      </div>
+    <% } %>
 </section>
