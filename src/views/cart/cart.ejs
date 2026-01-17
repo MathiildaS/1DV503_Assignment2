@@ -1,8 +1,8 @@
 <h1>Your Cart</h1>
 
-<% if (!cartItems || cartItems.length === 0) { %>
+<% if (!booksInCart || booksInCart.length === 0) { %>
   <h3>Your cart is empty.</h3>
-  <a class="btn" href="/books">Go to books</a>
+  <a class="btn" href="/books">Add some books to your cart!</a>
 <% } else { %>
 
   <table>
@@ -17,13 +17,13 @@
     </thead>
 
     <tbody>
-      <% cartItems.forEach(item => { %>
+      <% booksInCart.forEach(book => { %>
         <tr>
-          <td><%= item.title %></td>
-          <td><%= item.isbn %></td>
-          <td>$<%= Number(item.price).toFixed(2) %></td>
-          <td><%= item.qty %></td>
-          <td>$<%= Number(item.amount).toFixed(2) %></td>
+          <td><%= book.title %></td>
+          <td><%= book.isbn %></td>
+          <td>$<%= Number(book.price).toFixed(2) %></td>
+          <td><%= book.qty %></td>
+          <td>$<%= Number(book.amount).toFixed(2) %></td>
         </tr>
       <% }) %>
     </tbody>

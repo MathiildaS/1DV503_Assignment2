@@ -4,103 +4,174 @@
  * @author Mathilda Segerlund <ms228qs@student.lnu.se>
  */
 
-import pool from '../config/db.js'
+import sqlDatabase from '../config/db.js'
+
+// All SQL queries used in CartController
+
+// SQL query to get all books in a users cart with book details
+const getBooksFromCartQuery = `SELECT books.isbn, books.title, books.author, books.price, cart.qty, (cart.qty * books.price) AS amount
+  FROM cart
+  JOIN books ON books.isbn = cart.isbn
+  WHERE cart.userid = ?
+  ORDER BY books.title`
+
+// SQL query to add a new book or add one more if it already exists
+const addBookToCartQuery = `INSERT INTO cart (userid, isbn, qty)
+  VALUES (?, ?, ?)
+  ON DUPLICATE KEY UPDATE qty = qty + ?`
+
+// SQL query to create and insert a new order
+const createOrderQuery = `INSERT INTO orders (userid, created, shipAddress, shipCity, shipZip)
+  VALUES (?, ?, ?, ?, ?)`
+
+// SQL query to insert order details
+const createOrderDetailsQuery = `INSERT INTO odetails (ono, isbn, qty, amount)
+  VALUES (?, ?, ?, ?)`
+
+// SQL query to remove all books from a users cart
+const removeAllBooksQuery = `DELETE FROM cart
+  WHERE userid = ?`
 
 /**
  * Encapsulates a controller for the cart page.
  */
 export class CartController {
   /**
-   * Renders the cart view with the users cart items.
-   * Handles GET requests to '/cart'.
-   *
-   * @param {object} req - Express request object.
-   * @param {object} res - Express response object.
-   * @param {Function} next - Express next middleware function.
+   * Handles GET requests to view a users cart.
    */
   async listCart(req, res, next) {
     try {
       if (!req.session?.onlineUser) {
-        req.session.flash = { type: 'danger', text: 'Please log in to view your cart.' }
+        req.session.flash = { 
+          type: 'danger', 
+          text: 'Please log in to view your cart.' }
         return res.redirect('/user/logIn')
       }
 
       const userId = req.session.onlineUser.userid
 
-      const [cartItems] = await pool.query(
-        `
-        SELECT 
-          b.isbn, b.title, b.author, b.price,
-          c.qty,
-          (c.qty * b.price) AS amount
-        FROM cart c
-        JOIN books b ON b.isbn = c.isbn
-        WHERE c.userid = ?
-        ORDER BY b.title
-        `,
-        [userId]
-      )
+      const [booksInCart] = await sqlDatabase.query(getBooksFromCartQuery, [userId])
 
       let totalPrice = 0
-
-      for (const item of cartItems) {
-        totalPrice += Number(item.amount)
+      for (const book of booksInCart) {
+        totalPrice += Number(book.amount)
       }
 
-      res.render('cart/cart', { cartItems, totalPrice })
-    } catch (err) {
-      console.error('Cart error:', err)
-      req.session.flash = {
-        type: 'danger',
-        text: 'Failed to retrieve cart items. Please try again.'
+      return res.render('cart/cart', { booksInCart, totalPrice })
+    } catch (error) {
+      console.error('Cart error:', error)
+      req.session.flash = { 
+        type: 'danger', 
+        text: 'Failed to display items in cart. Please try again.' 
       }
-      res.redirect('/books')
+      return res.redirect('/books')
     }
   }
 
   /**
-   * Adds a book to the user's cart.
-   * Handles POST requests to '/cart/add'.
+   * Handles POST requests to add a book to the cart.
    */
   async addToCart(req, res, next) {
     try {
       if (!req.session?.onlineUser) {
-        req.session.flash = { type: 'danger', text: 'Please log in to add books to cart.' }
+        req.session.flash = { 
+          type: 'danger', 
+          text: 'Please log in to add books to cart.' }
         return res.redirect('/user/logIn')
       }
 
-      const userId = req.session.onlineUser.userid
-      const { isbn } = req.body
+      const onlineUserID = req.session.onlineUser.userid
+      const bookISBN = req.body.isbn
+      const amountOfBooks = parseInt(req.body.qty || '1')
 
-      if (!isbn) return res.redirect('/books')
+      if (!bookISBN) {
+        return res.redirect('/books')
+      }
 
-      await pool.query(
-        `
-        INSERT INTO cart (userid, isbn, qty)
-        VALUES (?, ?, 1)
-        ON DUPLICATE KEY UPDATE qty = qty + 1
-        `,
-        [userId, isbn]
-      )
+      const sqlValues = [onlineUserID, bookISBN, amountOfBooks, amountOfBooks]
+      await sqlDatabase.query(addBookToCartQuery, sqlValues)
 
-      req.session.flash = { type: 'success', text: 'Added to cart!' }
-      res.redirect('/books')
-    } catch (err) {
-      next(err)
+      req.session.flash = { 
+        type: 'success', 
+        text: 'Book added to cart!' 
+      }
+      return res.redirect('/books')
+    } catch (error) {
+      console.error('Add book to cart error:', error)
+      req.session.flash = {
+        type: 'danger',
+        text: 'Could not add book to cart. Please try again.'
+      }
+      return res.redirect('/books')
     }
   }
 
   /**
-   * Checkout: creates an order and order details, then clears the cart.
-   * Handles POST requests to '/cart/checkout'.
+   * Handles POST requests to create an order with invoice details and clears the cart when checkout.
    */
   async checkout(req, res, next) {
     try {
-      // Implementeras sen – men måste finnas för att router inte ska krascha
-      res.send('Checkout not implemented yet')
-    } catch (err) {
-      next(err)
+      if (!req.session?.onlineUser) {
+        req.session.flash = { 
+          type: 'danger', 
+          text: 'You must log in to checkout.' }
+        return res.redirect('/user/logIn')
+      }
+
+      const onlineUser = req.session.onlineUser
+      const onlineUserID = onlineUser.userid
+
+      const [booksInCart] = await sqlDatabase.query(getBooksFromCartQuery, [onlineUserID])
+
+      if (!booksInCart || booksInCart.length === 0) {
+        req.session.flash = { 
+          type: 'danger', 
+          text: 'Your cart is empty.' }
+        return res.redirect('/cart')
+      }
+
+      let totalPrice = 0
+      for (const book of booksInCart) {
+        totalPrice += Number(book.amount)
+      }
+
+      const orderCreated = new Date()
+      const deliveryDate = new Date(orderCreated)
+      deliveryDate.setDate(deliveryDate.getDate() + 7)
+
+      const shipAddress = onlineUser.address
+      const shipCity = onlineUser.city
+      const shipZip = onlineUser.zip
+
+      // Create and add order details
+      const [orderInvoiceDetails] = await sqlDatabase.query(createOrderQuery, [
+        onlineUserID,
+        orderCreated,
+        shipAddress,
+        shipCity,
+        shipZip
+      ])
+
+      const ono = orderInvoiceDetails.insertId
+
+      for (const book of booksInCart) {
+        await sqlDatabase.query(createOrderDetailsQuery, [ono, book.isbn, book.qty, book.amount])
+      }
+
+      await sqlDatabase.query(removeAllBooksQuery, [onlineUserID])
+
+      return res.render('cart/checkout', {
+        order: { ono, orderCreated, deliveryDate, shipAddress, shipCity, shipZip },
+        booksInCart,
+        totalPrice
+      })
+    } catch (error) {
+      console.error('Checkout page error:', error)
+      req.session.flash = {
+        type: 'danger',
+        text: 'Could not checkout.'
+      }
+    return res.redirect('/books')
     }
   }
-
 }
