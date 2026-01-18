@@ -13,7 +13,8 @@ npm install
 ```
 
 **3. Create a .env file in the root folder and provide your database connection details**
-See .env.example
+```See .env.example
+```
 
 **4. Start the application in development mode**
 ```bash
